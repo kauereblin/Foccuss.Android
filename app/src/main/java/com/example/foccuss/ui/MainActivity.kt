@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.foccuss.databinding.ActivityMainBinding
@@ -16,6 +17,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
+    private val TAG = "MainActivity"
 
     companion object {
         private const val OVERLAY_PERMISSION_REQUEST_CODE = 100
@@ -35,24 +37,34 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupButtons() {
         binding.btnSettings.setOnClickListener {
+            Log.d(TAG, "Opening Settings")
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
         binding.btnBlockedApps.setOnClickListener {
+            Log.d(TAG, "Opening Blocked Apps Configuration")
             startActivity(Intent(this, BlockedAppSelectionActivity::class.java))
+        }
+
+        binding.btnBlockTimes.setOnClickListener {
+            Log.d(TAG, "Opening Block Times Configuration")
+            startActivity(Intent(this, BlockTimeSettingsActivity::class.java))
         }
 
         binding.btnServiceStatus.setOnClickListener {
             if (viewModel.isAccessibilityServiceEnabled(this)) {
+                Log.d(TAG, "Navigating to accessibility settings to disable service")
                 // Desabilitar serviço
                 startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             } else {
+                Log.d(TAG, "Requesting accessibility permission")
                 // Habilitar serviço
                 requestAccessibilityPermission()
             }
         }
 
         binding.btnBatteryOptimization.setOnClickListener {
+            Log.d(TAG, "Opening battery optimization settings")
             val intent = Intent().apply {
                 action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
             }
@@ -60,6 +72,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnAutostart.setOnClickListener {
+            Log.d(TAG, "Opening autostart settings")
             // Abrir configurações MIUI para autostart
             try {
                 val intent = Intent().apply {
@@ -70,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
             } catch (e: Exception) {
+                Log.e(TAG, "Failed to open MIUI autostart settings: ${e.message}")
                 // Fallback para configurações normais
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", packageName, null)
@@ -82,6 +96,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermissions() {
         // Verificar permissão de overlay
         if (!Settings.canDrawOverlays(this)) {
+            Log.d(TAG, "Requesting overlay permission")
             requestOverlayPermission()
         }
 
@@ -104,6 +119,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateServiceStatus() {
         val isServiceEnabled = viewModel.isAccessibilityServiceEnabled(this)
+        Log.d(TAG, "Service status: ${if (isServiceEnabled) "Active" else "Inactive"}")
 
         binding.tvServiceStatus.text = if (isServiceEnabled) {
             "Serviço ativo"
@@ -119,6 +135,7 @@ class MainActivity : AppCompatActivity() {
 
         // Iniciar serviço se tudo estiver OK
         if (isServiceEnabled && Settings.canDrawOverlays(this)) {
+            Log.d(TAG, "Starting Foccuss service")
             startFoccussService()
         }
     }

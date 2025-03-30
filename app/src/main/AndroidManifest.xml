@@ -39,6 +39,11 @@
             android:parentActivityName=".ui.MainActivity" />
 
         <activity
+            android:name=".ui.BlockTimeSettingsActivity"
+            android:label="Horários de Bloqueio"
+            android:parentActivityName=".ui.MainActivity" />
+
+        <activity
             android:name=".ui.OverlayActivity"/>
 
         <service

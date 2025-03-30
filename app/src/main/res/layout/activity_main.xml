@@ -62,12 +62,20 @@
         app:layout_constraintTop_toBottomOf="@id/btnServiceStatus" />
 
     <Button
+        android:id="@+id/btnBlockTimes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Configurar horários de bloqueio"
+        app:layout_constraintTop_toBottomOf="@id/btnBlockedApps" />
+
+    <Button
         android:id="@+id/btnSettings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Configurações"
-        app:layout_constraintTop_toBottomOf="@id/btnBlockedApps" />
+        app:layout_constraintTop_toBottomOf="@id/btnBlockTimes" />
 
     <Button
         android:id="@+id/btnBatteryOptimization"

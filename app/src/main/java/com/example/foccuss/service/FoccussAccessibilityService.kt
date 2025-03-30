@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import com.example.foccuss.FoccussApplication
 import com.example.foccuss.ui.OverlayActivity
+import com.example.foccuss.viewmodel.BlockTimeSettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,6 +16,13 @@ class FoccussAccessibilityService : AccessibilityService() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Default)
     private val TAG = "FoccussAccessibility"
+    private lateinit var blockTimeViewModel: BlockTimeSettingsViewModel
+
+    override fun onCreate() {
+        super.onCreate()
+        blockTimeViewModel = BlockTimeSettingsViewModel(application)
+        Log.d(TAG, "FoccussAccessibilityService created")
+    }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
@@ -28,11 +36,22 @@ class FoccussAccessibilityService : AccessibilityService() {
             }
 
             serviceScope.launch {
-                val isBlocked = withContext(Dispatchers.IO) {
+                // First, check if we're in an active blocking period
+                val isTimeBlockActive = blockTimeViewModel.isBlockingActiveNow()
+
+                if (!isTimeBlockActive) {
+                    Log.d(TAG, "Outside blocking time period, allowing app: $packageName")
+                    return@launch
+                }
+
+                Log.d(TAG, "Within blocking time period, checking if app is blocked: $packageName")
+
+                // Now check if the app is in the blocklist
+                val isAppBlocked = withContext(Dispatchers.IO) {
                     FoccussApplication.database.blockedAppDao().isAppBlocked(packageName)
                 }
 
-                if (isBlocked) {
+                if (isAppBlocked) {
                     Log.d(TAG, "App is blocked: $packageName")
                     val overlayIntent = Intent(this@FoccussAccessibilityService, OverlayActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
