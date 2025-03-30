@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Foccuss</string>
+    <string name="accessibility_service_description">O Foccuss precisa deste serviço para detectar quando aplicativos bloqueados são abertos. Isso permite que o aplicativo mostre uma tela de bloqueio para ajudar você a manter o foco.</string>
+    <string name="notification_title">Foccuss está em execução</string>
+    <string name="notification_text">Monitorando aplicativos bloqueados</string>
+    <string name="blocked_app_title">Aplicativo Bloqueado</string>
+    <string name="blocked_app_message">Este aplicativo está bloqueado para ajudar a manter seu foco.</string>
+    <string name="blocked_app_button">Voltar para Home</string>
+    <string name="settings">Configurações</string>
+    <string name="blocked_apps">Aplicativos Bloqueados</string>
+    <string name="service_status">Status do Serviço</string>
+    <string name="battery_optimization">Otimização de Bateria</string>
+    <string name="autostart">Inicialização Automática</string>
+    <string name="enable_service">Habilitar Serviço</string>
+    <string name="disable_service">Desabilitar Serviço</string>
+</resources>

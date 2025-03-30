@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".ui.MainActivity">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Foccuss - Sistema de Foco"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tvDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Este aplicativo ajuda você a manter o foco bloqueando aplicativos que você configurar."
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <TextView
+        android:id="@+id/tvServiceStatusLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Status do serviço:"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/tvDescription"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvServiceStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Inativo"
+        app:layout_constraintTop_toTopOf="@id/tvServiceStatusLabel"
+        app:layout_constraintStart_toEndOf="@id/tvServiceStatusLabel" />
+
+    <Button
+        android:id="@+id/btnServiceStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Habilitar serviço"
+        app:layout_constraintTop_toBottomOf="@id/tvServiceStatusLabel" />
+
+    <Button
+        android:id="@+id/btnBlockedApps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Configurar aplicativos bloqueados"
+        app:layout_constraintTop_toBottomOf="@id/btnServiceStatus" />
+
+    <Button
+        android:id="@+id/btnSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Configurações"
+        app:layout_constraintTop_toBottomOf="@id/btnBlockedApps" />
+
+    <Button
+        android:id="@+id/btnBatteryOptimization"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Configurar otimização de bateria"
+        app:layout_constraintTop_toBottomOf="@id/btnSettings" />
+
+    <Button
+        android:id="@+id/btnAutostart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Configurar inicialização automática (MIUI)"
+        app:layout_constraintTop_toBottomOf="@id/btnBatteryOptimization" />
+
+    <TextView
+        android:id="@+id/tvTip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Dica: Para dispositivos Xiaomi, é necessário conceder permissões adicionais para o aplicativo funcionar corretamente em segundo plano."
+        android:textStyle="italic"
+        app:layout_constraintTop_toBottomOf="@id/btnAutostart" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
