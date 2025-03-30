@@ -38,6 +38,9 @@
             android:label="Selecionar Aplicativos"
             android:parentActivityName=".ui.MainActivity" />
 
+        <activity
+            android:name=".ui.OverlayActivity"/>
+
         <service
             android:name=".service.FoccussAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"

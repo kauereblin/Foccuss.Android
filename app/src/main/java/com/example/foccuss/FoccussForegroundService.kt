@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.foccuss.R
 import com.example.foccuss.ui.MainActivity
@@ -20,12 +21,16 @@ class FoccussForegroundService : Service() {
         private const val CHANNEL_ID = "FoccussServiceChannel"
     }
 
+    private val TAG = "FoccussForeground"
+
     override fun onCreate() {
         super.onCreate()
+        Log.i(TAG, "Foreground service created")
         createNotificationChannel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.i(TAG, "Foreground service started")
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
         return START_STICKY
@@ -42,6 +47,7 @@ class FoccussForegroundService : Service() {
             }
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
+            Log.d(TAG, "Notification channel created")
         }
     }
 
@@ -59,5 +65,10 @@ class FoccussForegroundService : Service() {
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.w(TAG, "Foreground service destroyed")
     }
 }
