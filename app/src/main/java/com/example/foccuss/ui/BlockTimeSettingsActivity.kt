@@ -3,6 +3,7 @@ package com.example.foccuss.ui
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.foccuss.data.entity.BlockTimeSettings
@@ -144,7 +145,44 @@ class BlockTimeSettingsActivity : AppCompatActivity() {
         
         CoroutineScope(Dispatchers.Main).launch {
             viewModel.saveSettings(settings)
-            Log.d(TAG, "Settings saved, finishing activity")
+            
+            // Export block time settings to web API
+            try {
+                val result = viewModel.exportBlockTimeSettings()
+                result.onSuccess { response ->
+                    Log.d(TAG, "Export successful: ${response.message}")
+                    Toast.makeText(
+                        this@BlockTimeSettingsActivity,
+                        "Configurações salvas e exportadas com sucesso",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }.onFailure { error ->
+                    Log.e(TAG, "Export failed: ${error.message}")
+                    val errorMessage = when {
+                        error is java.net.UnknownHostException -> 
+                            "Erro ao conectar com o servidor. Verifique a URL da API e sua conexão com a internet."
+                        error is java.net.ConnectException ->
+                            "Não foi possível conectar ao servidor. Verifique se o servidor está ativo."
+                        error.message?.contains("timeout", ignoreCase = true) == true ->
+                            "A conexão com o servidor expirou. Tente novamente mais tarde."
+                        else -> "Erro: ${error.message}"
+                    }
+                    Toast.makeText(
+                        this@BlockTimeSettingsActivity,
+                        errorMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Export exception: ${e.message}")
+                Toast.makeText(
+                    this@BlockTimeSettingsActivity,
+                    "Configurações salvas localmente. Erro ao exportar.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            
+            Log.d(TAG, "Settings saved and exported, finishing activity")
             finish()
         }
     }

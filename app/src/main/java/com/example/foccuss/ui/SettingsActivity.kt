@@ -5,22 +5,42 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.foccuss.FoccussApplication
+import com.example.foccuss.data.api.ApiConfig
 import com.example.foccuss.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
+    private val apiConfig = FoccussApplication.apiConfig
+    private val TAG = "SettingsActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.etApiUrl.setText(apiConfig.getApiUrl())
+
         setupButtons()
     }
 
     private fun setupButtons() {
+        binding.btnSaveApiUrl.setOnClickListener {
+            val apiUrl = binding.etApiUrl.text.toString().trim()
+            if (apiUrl.isNotEmpty()) {
+                apiConfig.setApiUrl(apiUrl)
+                val savedUrl = apiConfig.getApiUrl()
+                Log.d(TAG, "API URL saved: $savedUrl")
+                Toast.makeText(this, "URL da API salva com sucesso", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Por favor, insira uma URL válida", Toast.LENGTH_SHORT).show()
+            }
+        }
+        
         binding.btnAutostart.setOnClickListener {
             // Tentar abrir configurações MIUI para autostart
             try {

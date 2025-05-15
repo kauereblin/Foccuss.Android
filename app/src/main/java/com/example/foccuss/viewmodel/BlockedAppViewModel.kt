@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.example.foccuss.FoccussApplication
+import com.example.foccuss.data.api.ApiResponse
 import com.example.foccuss.data.entity.BlockedApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,6 +13,7 @@ import kotlinx.coroutines.withContext
 class BlockedAppViewModel(application: Application) : AndroidViewModel(application) {
 
     private val dao = FoccussApplication.database.blockedAppDao()
+    private val apiService = FoccussApplication.apiService
     val blockedApps: LiveData<List<BlockedApp>> = dao.getAllBlockedApps()
 
     private val TAG = "BlockedAppViewModel"
@@ -46,6 +48,14 @@ class BlockedAppViewModel(application: Application) : AndroidViewModel(applicati
             }
             pendingChanges.clear()
             Log.d(TAG, "All changes saved successfully")
+        }
+    }
+    
+    suspend fun exportBlockedApps(): Result<ApiResponse> {
+        return withContext(Dispatchers.IO) {
+            val apps = blockedApps.value ?: listOf()
+            Log.d(TAG, "Exporting ${apps.size} blocked apps")
+            apiService.exportBlockedApps(apps)
         }
     }
 }

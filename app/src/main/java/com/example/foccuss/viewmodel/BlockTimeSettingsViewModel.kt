@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import com.example.foccuss.FoccussApplication
+import com.example.foccuss.data.api.ApiResponse
 import com.example.foccuss.data.entity.BlockTimeSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,6 +14,7 @@ import java.util.Calendar
 class BlockTimeSettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val dao = FoccussApplication.database.blockTimeSettingsDao()
+    private val apiService = FoccussApplication.apiService
     val settings: LiveData<BlockTimeSettings?> = dao.getSettings()
     
     private val TAG = "BlockTimeSettings"
@@ -35,6 +37,19 @@ class BlockTimeSettingsViewModel(application: Application) : AndroidViewModel(ap
             val isActive = dao.isBlockingActiveNow(currentHour, currentMinute, dayOfWeek)
             Log.d(TAG, "Checking if blocking is active now: $isActive (Day: $dayOfWeek, Time: $currentHour:$currentMinute)")
             return@withContext isActive
+        }
+    }
+    
+    suspend fun exportBlockTimeSettings(): Result<ApiResponse> {
+        return withContext(Dispatchers.IO) {
+            val currentSettings = settings.value
+            if (currentSettings != null) {
+                Log.d(TAG, "Exporting block time settings")
+                apiService.exportBlockTimeSettings(currentSettings)
+            } else {
+                Log.e(TAG, "Cannot export settings: no settings found")
+                Result.failure(IllegalStateException("No settings found to export"))
+            }
         }
     }
 } 

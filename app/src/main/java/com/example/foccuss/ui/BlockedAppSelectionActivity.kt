@@ -4,6 +4,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -63,7 +64,44 @@ class BlockedAppSelectionActivity : AppCompatActivity() {
             Log.d(TAG, "Save button clicked")
             CoroutineScope(Dispatchers.Main).launch {
                 viewModel.saveChanges()
-                Log.d(TAG, "Changes saved, finishing activity")
+                
+                // Export blocked apps to web API
+                try {
+                    val result = viewModel.exportBlockedApps()
+                    result.onSuccess { response ->
+                        Log.d(TAG, "Export successful: ${response.message}")
+                        Toast.makeText(
+                            this@BlockedAppSelectionActivity,
+                            "Aplicativos salvos e exportados com sucesso",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }.onFailure { error ->
+                        Log.e(TAG, "Export failed: ${error.message}")
+                        val errorMessage = when {
+                            error is java.net.UnknownHostException -> 
+                                "Erro ao conectar com o servidor. Verifique a URL da API e sua conexão com a internet."
+                            error is java.net.ConnectException ->
+                                "Não foi possível conectar ao servidor. Verifique se o servidor está ativo."
+                            error.message?.contains("timeout", ignoreCase = true) == true ->
+                                "A conexão com o servidor expirou. Tente novamente mais tarde."
+                            else -> "Erro: ${error.message}"
+                        }
+                        Toast.makeText(
+                            this@BlockedAppSelectionActivity,
+                            errorMessage,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Export exception: ${e.message}")
+                    Toast.makeText(
+                        this@BlockedAppSelectionActivity,
+                        "Aplicativos salvos localmente. Erro ao exportar.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                
+                Log.d(TAG, "Changes saved and exported, finishing activity")
                 finish()
             }
         }
