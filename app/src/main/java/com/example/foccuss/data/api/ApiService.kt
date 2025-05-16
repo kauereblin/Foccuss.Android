@@ -9,6 +9,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -45,7 +46,7 @@ class ApiService(private val context: Context) {
             }
             
             val apiUrl = apiConfig.getApiUrl()
-            val response = client.post("$apiUrl/blocked-apps") {
+            val response = client.post("$apiUrl/blocked-apps/android") {
                 contentType(ContentType.Application.Json)
                 setBody(blockedAppDtos)
             }
@@ -80,7 +81,7 @@ class ApiService(private val context: Context) {
             )
 
             val apiUrl = apiConfig.getApiUrl()
-            val response = client.post("$apiUrl/block-time-settings") {
+            val response = client.post("$apiUrl/block-time-settings/android") {
                 contentType(ContentType.Application.Json)
                 setBody(settingsDto)
             }
@@ -128,7 +129,7 @@ class ApiService(private val context: Context) {
             )
 
             val apiUrl = apiConfig.getApiUrl()
-            val response = client.post("$apiUrl/export-all") {
+            val response = client.post("$apiUrl/android") {
                 contentType(ContentType.Application.Json)
                 setBody(dataExport)
             }
@@ -138,6 +139,60 @@ class ApiService(private val context: Context) {
             Result.success(apiResponse)
         } catch (e: Exception) {
             Log.e(TAG, "Error exporting all data: ${e.message}", e)
+            Log.e(TAG, "Error class: ${e.javaClass.simpleName}")
+            Result.failure(e)
+        }
+    }
+    
+    suspend fun fetchBlockedApps(): Result<List<BlockedAppDto>> {
+        return try {
+            Log.d(TAG, "Fetching blocked apps from web API")
+            
+            val apiUrl = apiConfig.getApiUrl()
+            val response = client.get("$apiUrl/blocked-apps/android")
+            
+            val blockedApps = response.body<List<BlockedAppDto>>()
+            Log.d(TAG, "Received ${blockedApps.size} blocked apps from web API")
+            
+            Result.success(blockedApps)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching blocked apps: ${e.message}", e)
+            Log.e(TAG, "Error class: ${e.javaClass.simpleName}")
+            Result.failure(e)
+        }
+    }
+    
+    suspend fun fetchBlockTimeSettings(): Result<BlockTimeSettingsDto> {
+        return try {
+            Log.d(TAG, "Fetching block time settings from web API")
+            
+            val apiUrl = apiConfig.getApiUrl()
+            val response = client.get("$apiUrl/block-time-settings/android")
+            
+            val settings = response.body<BlockTimeSettingsDto>()
+            Log.d(TAG, "Received block time settings from web API")
+            
+            Result.success(settings)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching block time settings: ${e.message}", e)
+            Log.e(TAG, "Error class: ${e.javaClass.simpleName}")
+            Result.failure(e)
+        }
+    }
+    
+    suspend fun fetchAllData(): Result<DataExportDto> {
+        return try {
+            Log.d(TAG, "Fetching all data from web API")
+            
+            val apiUrl = apiConfig.getApiUrl()
+            val response = client.get("$apiUrl/android")
+            
+            val allData = response.body<DataExportDto>()
+            Log.d(TAG, "Received all data from web API")
+            
+            Result.success(allData)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching all data: ${e.message}", e)
             Log.e(TAG, "Error class: ${e.javaClass.simpleName}")
             Result.failure(e)
         }

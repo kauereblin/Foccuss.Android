@@ -58,4 +58,40 @@ class BlockedAppViewModel(application: Application) : AndroidViewModel(applicati
             apiService.exportBlockedApps(apps)
         }
     }
+    
+    suspend fun syncFromWeb(): Result<Int> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val result = apiService.fetchBlockedApps()
+                result.onSuccess { webApps ->
+                    Log.d(TAG, "Successfully fetched ${webApps.size} blocked apps from web")
+                    
+                    var insertCount = 0
+                    webApps.forEach { webApp ->
+                        val app = BlockedApp(
+                            packageName = webApp.packageName,
+                            appName = webApp.appName,
+                            isBlocked = webApp.isBlocked
+                        )
+                        dao.insert(app)
+                        insertCount++
+                    }
+                    
+                    Log.d(TAG, "Synced $insertCount blocked apps from web")
+                    return@withContext Result.success(insertCount)
+                }
+                
+                result.onFailure { error ->
+                    Log.e(TAG, "Failed to fetch blocked apps from web: ${error.message}")
+                    return@withContext Result.failure(error)
+                }
+                
+                // This is a fallback - onSuccess or onFailure should have returned already
+                return@withContext Result.failure(Exception("Unknown error during sync"))
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception during sync: ${e.message}")
+                return@withContext Result.failure(e)
+            }
+        }
+    }
 }

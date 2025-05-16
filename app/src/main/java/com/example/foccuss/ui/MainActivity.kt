@@ -7,11 +7,18 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.foccuss.databinding.ActivityMainBinding
 import com.example.foccuss.service.FoccussForegroundService
 import com.example.foccuss.viewmodel.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.UnknownHostException
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +40,47 @@ class MainActivity : AppCompatActivity() {
 
         setupButtons()
         checkPermissions()
+        
+        syncFromWebAtStartup()
+    }
+    
+    private fun syncFromWebAtStartup() {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                binding.tvSyncStatus.text = "Sincronizando dados..."
+                val result = viewModel.syncAllDataFromWeb()
+                
+                result.onSuccess {
+                    Log.d(TAG, "Initial sync from web successful")
+                    binding.tvSyncStatus.text = "Última sincronização: Agora mesmo"
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@MainActivity, 
+                            "Dados sincronizados com sucesso",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }.onFailure { error ->
+                    Log.e(TAG, "Initial sync failed: ${error.message}")
+                    if (error is UnknownHostException) {
+                        // This is usually the case when the app is first started and there's no connection
+                        binding.tvSyncStatus.text = "Usando dados locais (sem conexão)"
+                    } else {
+                        binding.tvSyncStatus.text = "Erro: ${error.message}"
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@MainActivity, 
+                                "Erro na sincronização: ${error.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error during initial sync: ${e.message}")
+                binding.tvSyncStatus.text = "Erro na sincronização"
+            }
+        }
     }
 
     private fun setupButtons() {
@@ -89,6 +137,62 @@ class MainActivity : AppCompatActivity() {
                     data = Uri.fromParts("package", packageName, null)
                 }
                 startActivity(intent)
+            }
+        }
+        
+        binding.btnSync.setOnClickListener {
+            performSync()
+        }
+    }
+    
+    private fun performSync() {
+        Log.d(TAG, "Syncing data from web")
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                // Show syncing status
+                binding.tvSyncStatus.text = "Sincronizando dados..."
+                binding.btnSync.isEnabled = false
+                
+                val result = viewModel.syncAllDataFromWeb()
+                
+                result.onSuccess {
+                    Log.d(TAG, "Sync from web successful")
+                    binding.tvSyncStatus.text = "Última sincronização: Agora mesmo"
+                    Toast.makeText(
+                        this@MainActivity, 
+                        "Dados sincronizados com sucesso",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }.onFailure { error ->
+                    Log.e(TAG, "Sync failed: ${error.message}")
+                    binding.tvSyncStatus.text = "Erro: ${error.message}"
+                    
+                    val errorMessage = when {
+                        error is UnknownHostException -> 
+                            "Erro ao conectar com o servidor. Verifique sua conexão com a internet."
+                        error is java.net.ConnectException ->
+                            "Não foi possível conectar ao servidor. Verifique se o servidor está ativo."
+                        error.message?.contains("timeout", ignoreCase = true) == true ->
+                            "A conexão com o servidor expirou. Tente novamente mais tarde."
+                        else -> "Erro: ${error.message}"
+                    }
+                    
+                    Toast.makeText(
+                        this@MainActivity, 
+                        errorMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error during sync: ${e.message}")
+                binding.tvSyncStatus.text = "Erro na sincronização"
+                Toast.makeText(
+                    this@MainActivity, 
+                    "Erro: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } finally {
+                binding.btnSync.isEnabled = true
             }
         }
     }

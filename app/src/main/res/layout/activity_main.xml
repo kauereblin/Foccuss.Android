@@ -102,4 +102,22 @@
         android:textStyle="italic"
         app:layout_constraintTop_toBottomOf="@id/btnAutostart" />
 
+    <Button
+        android:id="@+id/btnSync"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Sincronizar com a Nuvem"
+        app:layout_constraintTop_toBottomOf="@id/tvTip" />
+
+    <TextView
+        android:id="@+id/tvSyncStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text=""
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@id/btnSync" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

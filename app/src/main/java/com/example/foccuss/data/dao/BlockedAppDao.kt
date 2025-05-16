@@ -19,12 +19,18 @@ interface BlockedAppDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(blockedApp: BlockedApp)
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSync(blockedApp: BlockedApp)
 
     @Update
     suspend fun update(blockedApp: BlockedApp)
 
     @Delete
     suspend fun delete(blockedApp: BlockedApp)
+    
+    @Delete
+    fun deleteSync(blockedApp: BlockedApp)
 
     @Query("SELECT EXISTS(SELECT 1 FROM blocked_apps WHERE packageName = :packageName AND isBlocked = 1)")
     fun isAppBlocked(packageName: String): Boolean

@@ -52,4 +52,46 @@ class BlockTimeSettingsViewModel(application: Application) : AndroidViewModel(ap
             }
         }
     }
+    
+    suspend fun syncFromWeb(): Result<Boolean> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val result = apiService.fetchBlockTimeSettings()
+                result.onSuccess { webSettings ->
+                    Log.d(TAG, "Successfully fetched block time settings from web")
+                    
+                    val settings = BlockTimeSettings(
+                        id = 1, // Using fixed ID as it's a singleton
+                        startHour = webSettings.startHour,
+                        startMinute = webSettings.startMinute,
+                        endHour = webSettings.endHour,
+                        endMinute = webSettings.endMinute,
+                        monday = webSettings.monday,
+                        tuesday = webSettings.tuesday,
+                        wednesday = webSettings.wednesday,
+                        thursday = webSettings.thursday,
+                        friday = webSettings.friday,
+                        saturday = webSettings.saturday,
+                        sunday = webSettings.sunday,
+                        isActive = webSettings.isActive
+                    )
+                    
+                    dao.insert(settings)
+                    Log.d(TAG, "Synced block time settings from web")
+                    return@withContext Result.success(true)
+                }
+                
+                result.onFailure { error ->
+                    Log.e(TAG, "Failed to fetch block time settings from web: ${error.message}")
+                    return@withContext Result.failure(error)
+                }
+                
+                // This is a fallback - onSuccess or onFailure should have returned already
+                return@withContext Result.failure(Exception("Unknown error during sync"))
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception during sync: ${e.message}")
+                return@withContext Result.failure(e)
+            }
+        }
+    }
 } 

@@ -16,6 +16,9 @@ interface BlockTimeSettingsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(settings: BlockTimeSettings)
     
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSync(settings: BlockTimeSettings)
+    
     @Update
     suspend fun update(settings: BlockTimeSettings)
     

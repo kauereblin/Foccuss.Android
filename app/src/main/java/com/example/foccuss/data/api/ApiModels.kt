@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class BlockedAppDto(
-    val platform: String = "android",
     val packageName: String,
     val appName: String,
     val isBlocked: Boolean
@@ -12,7 +11,6 @@ data class BlockedAppDto(
 
 @Serializable
 data class BlockTimeSettingsDto(
-    val platform: String = "android",
     val startHour: Int,
     val startMinute: Int,
     val endHour: Int,

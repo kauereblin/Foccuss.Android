@@ -8,7 +8,7 @@ class ApiConfig(private val context: Context) {
     private val TAG = "ApiConfig"
     private val PREF_NAME = "api_config"
     private val KEY_API_URL = "api_url"
-    private val DEFAULT_API_URL = "http://IP_SERVER:3000"
+    private val DEFAULT_API_URL = "http://18.118.128.147:3000"
     
     private val prefs: SharedPreferences by lazy {
         context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
